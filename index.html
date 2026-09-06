@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F4C5C">
+<title>Kod Defteri · Stage 1–4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#F5F7F6; --panel:#FFFFFF; --panel2:#EDF1F0; --line:#D5DDDB; --line2:#C2CCCA;
+  --ink:#152225; --ink2:#4B5D61; --ink3:#7A8B8E;
+  --accent:#0F4C5C; --accent-ink:#FFFFFF; --accent-soft:#DDEBEE;
+  --todo:#9AA9AC; --prog:#D89B2B; --prog-soft:#FBEFD4; --done:#2E8B57; --done-soft:#DCF1E4;
+  --flag:#B8412E; --flag-soft:#F8E0DB;
+  --shadow:0 1px 2px rgba(21,34,37,.06),0 4px 14px rgba(21,34,37,.05);
+  --r:12px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1719; --panel:#162225; --panel2:#1D2B2F; --line:#2A3A3E; --line2:#37494E;
+    --ink:#E6EDEE; --ink2:#A9BABD; --ink3:#78898C;
+    --accent:#63B7C9; --accent-ink:#0B1416; --accent-soft:#183238;
+    --todo:#5B6B6E; --prog:#E4B04A; --prog-soft:#3A2E14; --done:#5CC08A; --done-soft:#173A27;
+    --flag:#E4715C; --flag-soft:#3F1F19;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1719; --panel:#162225; --panel2:#1D2B2F; --line:#2A3A3E; --line2:#37494E;
+  --ink:#E6EDEE; --ink2:#A9BABD; --ink3:#78898C;
+  --accent:#63B7C9; --accent-ink:#0B1416; --accent-soft:#183238;
+  --todo:#5B6B6E; --prog:#E4B04A; --prog-soft:#3A2E14; --done:#5CC08A; --done-soft:#173A27;
+  --flag:#E4715C; --flag-soft:#3F1F19;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+.disp{font-family:"Sora","Atkinson Hyperlegible",system-ui,sans-serif}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-in{max-width:760px;margin:0 auto;padding:12px 16px 0}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:"Sora",sans-serif;font-weight:700;font-size:19px;margin:0;letter-spacing:-.01em}
+.brand .sub{font-size:12px;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase}
+.progress{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
+.bar{flex:1;height:10px;border-radius:99px;background:var(--panel2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .d{background:var(--done)} .bar .p{background:var(--prog)}
+.pnum{font-family:"Sora",sans-serif;font-weight:600;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:4px}
+.tab{flex:1;padding:10px 8px;font-family:"Sora",sans-serif;font-weight:600;font-size:14px;color:var(--ink2);border-bottom:3px solid transparent;border-radius:6px 6px 0 0}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.sync{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;padding:0 0 8px}
+.sync b{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--todo)}
+.sync.on b{background:var(--done)} .sync.local b{background:var(--prog)}
+
+main{max-width:760px;margin:0 auto;padding:14px 12px 80px}
+.hidden{display:none!important}
+
+/* chapters */
+.ch{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.ch-h{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px}
+.ch-n{font-family:"Sora",sans-serif;font-weight:700;font-size:13px;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:6px 8px;min-width:44px;text-align:center}
+.ch-t{flex:1;min-width:0}
+.ch-t h2{font-family:"Sora",sans-serif;font-size:16px;font-weight:600;margin:0;text-wrap:balance}
+.ch-t .meta{font-size:12.5px;color:var(--ink3);margin-top:2px;font-variant-numeric:tabular-nums}
+.ch-pct{font-family:"Sora",sans-serif;font-weight:600;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.ch-pct.full{color:var(--done)}
+.chev{width:20px;height:20px;color:var(--ink3);transition:transform .2s}
+.ch.open .chev{transform:rotate(180deg)}
+.ch-body{display:none;border-top:1px solid var(--line)}
+.ch.open .ch-body{display:block}
+.sec{padding:12px 14px 6px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.sec-h h3{font-family:"Sora",sans-serif;font-size:14.5px;font-weight:600;margin:0}
+.sec-h .k{font-family:"Sora",sans-serif;font-weight:700;color:var(--accent);font-size:13px}
+.sec-h .pages{font-size:12.5px;color:var(--ink3);margin-left:auto;font-variant-numeric:tabular-nums}
+.sec-time{font-size:12.5px;color:var(--ink2);margin:-2px 0 8px;font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-top:1px dashed var(--line)}
+.row:first-of-type{border-top:0}
+.cb{flex:none;width:28px;height:28px;border:2px solid var(--line2);border-radius:8px;display:grid;place-items:center;margin-top:1px;background:var(--panel)}
+.cb svg{width:18px;height:18px;opacity:0;color:var(--accent-ink)}
+.row.on .cb{background:var(--done);border-color:var(--done)}
+.row.on .cb svg{opacity:1;color:#fff}
+.row-t{flex:1;min-width:0}
+.row-t .code{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:13.5px;color:var(--accent)}
+.row-t .en{font-size:14.5px;margin-top:1px}
+.row-t .tr{font-size:13px;color:var(--ink2);margin-top:1px}
+.row.on .en{color:var(--ink2);text-decoration:line-through;text-decoration-color:var(--ink3);text-decoration-thickness:1.5px}
+.strandtag{display:inline-block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);margin-left:6px}
+.sec-all{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent);font-weight:700;padding:6px 0 8px;font-family:"Sora",sans-serif}
+
+/* code list */
+.filters{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 12px;border-radius:99px;border:1px solid var(--line2);font-size:13px;font-weight:700;color:var(--ink2);background:var(--panel);font-family:"Sora",sans-serif}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.strand{margin:18px 0 8px}
+.strand h2{font-family:"Sora",sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:0 0 2px;font-weight:600}
+.strand .cnt{font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--shadow);border-left:5px solid var(--todo)}
+.card.s-progress{border-left-color:var(--prog)}
+.card.s-done{border-left-color:var(--done)}
+.card.flag{border-left-color:var(--flag)}
+.card-h{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 8px;width:100%;text-align:left}
+.card-h .code{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:14px;color:var(--accent)}
+.card-h .en{font-size:14.5px;margin-top:2px}
+.card-h .tr{font-size:13px;color:var(--ink2);margin-top:2px}
+.card.s-done .card-h .en{color:var(--ink2)}
+.pill{flex:none;align-self:flex-start;font-family:"Sora",sans-serif;font-size:12px;font-weight:700;padding:6px 10px;border-radius:99px;white-space:nowrap;border:1px solid transparent}
+.pill.todo{background:var(--panel2);color:var(--ink2);border-color:var(--line2)}
+.pill.progress{background:var(--prog-soft);color:var(--prog)}
+.pill.done{background:var(--done-soft);color:var(--done)}
+.card-body{padding:0 12px 12px;border-top:1px dashed var(--line);margin-top:2px;padding-top:10px}
+.card:not(.open) .card-body{display:none}
+.lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin:8px 0 6px;font-family:"Sora",sans-serif;font-weight:600}
+.where{display:flex;flex-wrap:wrap;gap:6px}
+.wchip{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;padding:6px 9px;border-radius:8px;border:1.5px solid var(--line2);color:var(--ink2);background:var(--panel)}
+.wchip.on{background:var(--done-soft);border-color:var(--done);color:var(--done)}
+.camb{font-size:13px;color:var(--ink2)}
+.st-row{display:flex;gap:6px;flex-wrap:wrap}
+.st{font-family:"Sora",sans-serif;font-size:12.5px;font-weight:700;padding:8px 11px;border-radius:8px;border:1.5px solid var(--line2);color:var(--ink2)}
+.st[aria-pressed="true"].auto{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.st[aria-pressed="true"].todo{background:var(--panel2);border-color:var(--ink3);color:var(--ink)}
+.st[aria-pressed="true"].progress{background:var(--prog-soft);border-color:var(--prog);color:var(--prog)}
+.st[aria-pressed="true"].done{background:var(--done-soft);border-color:var(--done);color:var(--done)}
+.tog{display:flex;align-items:center;gap:10px;padding:8px 0}
+.sw{width:42px;height:24px;border-radius:99px;background:var(--line2);position:relative;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked="true"]{background:var(--flag)}
+.sw[aria-checked="true"]::after{left:21px}
+.tog span{font-size:14px}
+textarea{width:100%;min-height:64px;resize:vertical;border:1.5px solid var(--line2);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px;background:var(--panel2);color:var(--ink)}
+.note-saved{font-size:12px;color:var(--ink3);margin-top:4px;min-height:16px}
+.empty{text-align:center;color:var(--ink3);padding:30px 10px;font-size:14px}
+
+.foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.btn{font-family:"Sora",sans-serif;font-weight:600;font-size:13.5px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line2);color:var(--ink2);background:var(--panel)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+.info{background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--ink);margin-bottom:14px}
+.info b{font-family:"Sora",sans-serif}
+.stages{display:flex;gap:6px;margin:10px 0 2px}
+.stg{flex:1;padding:7px 4px 6px;border-radius:10px;border:1.5px solid var(--line2);text-align:center;font-family:"Sora",sans-serif;font-weight:700;font-size:13px;color:var(--ink2);background:var(--panel);line-height:1.2}
+.stg b{display:block;font-size:11px;font-weight:600;color:var(--ink3);font-variant-numeric:tabular-nums;margin-top:2px}
+.stg[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.stg[aria-pressed="true"] b{color:var(--accent-ink);opacity:.85}
+.stg .mini{display:block;height:3px;border-radius:99px;background:rgba(0,0,0,.12);margin-top:5px;overflow:hidden}
+.stg .mini i{display:block;height:100%;background:var(--done)}
+.stg[aria-pressed="true"] .mini{background:rgba(255,255,255,.3)} .stg[aria-pressed="true"] .mini i{background:var(--accent-ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>Kod Defteri</h1>
+      <span class="sub">Cambridge 0097 · Stage 1–4</span>
+    </div>
+    <div class="stages" id="stages" role="tablist" aria-label="Sınıf seç"></div>
+    <div class="progress">
+      <div class="bar" id="bar"><i class="d" style="width:0"></i><i class="p" style="width:0"></i></div>
+      <span class="pnum" id="pnum">0 / 0</span>
+    </div>
+    <div class="sync" id="sync"><b></b><span>Bağlanıyor…</span></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="units">Ünite Sırası</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="codes">Kod Listesi</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="view-units" role="tabpanel">
+    <div class="info">
+      <b>Nasıl kullanılır:</b> Üstten sınıfı seç. Bir bölümde bir kodu işleyince kutucuğuna dokun. Aynı kod birden fazla bölümde geçebilir (özellikle TWS ve SIC kodları). Tüm bölümleri işlenen kod otomatik olarak <em>Tamamlandı</em> olur. Kod Listesi sekmesinden durumu elle de değiştirebilir, not yazabilirsin. Her sınıfın işaretleri ayrı tutulur. İşaretler bu cihazın tarayıcısında saklanır; başka cihaza taşımak için Kod Listesi altındaki <em>Yedek al / Yedek yükle</em> düğmelerini kullan.
+    </div>
+    <div id="chapters"></div>
+  </section>
+
+  <section id="view-codes" role="tabpanel" class="hidden">
+    <div class="filters" id="filters">
+      <button class="chip" aria-pressed="true" data-f="all">Hepsi</button>
+      <button class="chip" aria-pressed="false" data-f="todo">Başlanmadı</button>
+      <button class="chip" aria-pressed="false" data-f="progress">Devam ediyor</button>
+      <button class="chip" aria-pressed="false" data-f="done">Tamamlandı</button>
+      <button class="chip" aria-pressed="false" data-f="flag">Ek plan gerekli</button>
+    </div>
+    <div id="codes"></div>
+    <div class="foot">
+      <button class="btn primary" id="copyBtn">Özeti panoya kopyala</button>
+      <button class="btn" id="exportBtn">Yedek al (kopyala)</button>
+      <button class="btn" id="importBtn">Yedek yükle (yapıştır)</button>
+      <button class="btn" id="resetBtn">Bu sınıfın işaretlerini temizle</button>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- DATA (kaynak: 0097 Learning Objectives + Marshall Cavendish Stage 1–4 Scheme of Work) ---------- */
+const STRANDS = [
+  ["TWS","Thinking and Working Scientifically"],
+  ["B","Biology"],["C","Chemistry"],["P","Physics"],["ES","Earth and Space"],["SIC","Science in Context"]
+];
+const STAGES = {
+  1:{label:"1. Sınıf",codes:[
+  ["1TWSp.01","TWS","Ask questions about the world around us and talk about how to find answers.","Çevresi hakkında soru sorar, cevabı nasıl bulacağını konuşur."],
+  ["1TWSp.02","TWS","Make predictions about what they think will happen.","Ne olacağına dair tahmin yapar."],
+  ["1TWSc.01","TWS","Sort and group objects, materials and living things based on observations of the similarities and differences between them.","Benzerlik ve farklılıklara göre nesneleri, maddeleri ve canlıları sınıflar."],
+  ["1TWSc.02","TWS","Use given equipment appropriately.","Verilen araç gereci uygun şekilde kullanır."],
+  ["1TWSc.03","TWS","Take measurements in non-standard units.","Standart olmayan birimlerle ölçer (karış, adım, küp vb.)."],
+  ["1TWSc.04","TWS","Follow instructions safely when doing practical work.","Uygulamalı çalışmada yönergeleri güvenle izler."],
+  ["1TWSc.05","TWS","Collect and record observations and/or measurements by annotating images and completing simple tables.","Gözlemleri resim etiketleyerek ve basit tablo doldurarak kaydeder."],
+  ["1TWSa.01","TWS","Describe what happened during an enquiry and if it matched their predictions.","Deneyde ne olduğunu ve tahminiyle uyuşup uyuşmadığını anlatır."],
+  ["1Bs.01","B","Recognise and name the major parts of familiar flowering plants (limited to roots, leaves, stems and flowers).","Çiçekli bitkinin ana kısımlarını tanır: kök, yaprak, gövde, çiçek."],
+  ["1Bs.02","B","Identify the senses (limited to sight, hearing, taste, smell and touch) and what they detect, linking each to the correct body part.","Beş duyuyu, ne algıladıklarını ve ilgili organı eşleştirir."],
+  ["1Bs.03","B","Recognise and name the major external parts of the human body.","Vücudun dış kısımlarını tanır ve adlandırır."],
+  ["1Bp.01","B","Identify living things and things that have never been alive.","Canlıları ve hiç canlı olmamış şeyleri ayırt eder."],
+  ["1Bp.02","B","Know that animals, including humans, need air, water and suitable food to survive.","Hayvanların (insan dahil) hava, su ve uygun besine ihtiyacı olduğunu bilir."],
+  ["1Bp.03","B","Know that plants need light and water to survive.","Bitkilerin ışık ve suya ihtiyacı olduğunu bilir."],
+  ["1Bp.04","B","Describe how humans are similar to and different from each other.","İnsanların birbirine benzer ve farklı yönlerini anlatır."],
+  ["1Cm.01","C","Identify, name, describe, sort and group common materials, including wood, plastic, metal, glass, rock, paper and fabric.","Yaygın maddeleri (ahşap, plastik, metal, cam, kaya, kağıt, kumaş) tanır, betimler ve gruplar."],
+  ["1Cm.02","C","Understand the difference between an object and a material.","Nesne ile madde arasındaki farkı anlar."],
+  ["1Cp.01","C","Understand that all materials have a variety of properties.","Tüm maddelerin çeşitli özellikleri olduğunu anlar."],
+  ["1Cp.02","C","Describe common materials in terms of their properties.","Yaygın maddeleri özellikleriyle betimler."],
+  ["1Cc.01","C","Describe how materials can be changed by physical action, e.g. stretching, compressing, bending and twisting.","Maddelerin germe, sıkıştırma, bükme, burma ile değiştirilebildiğini anlatır."],
+  ["1Pf.01","P","Explore, talk about and describe the movement of familiar objects.","Tanıdık nesnelerin hareketini keşfeder ve betimler."],
+  ["1Pf.02","P","Describe pushes and pulls as forces.","İtme ve çekmeyi kuvvet olarak betimler."],
+  ["1Pf.03","P","Explore that some objects float and some sink.","Bazı nesnelerin yüzdüğünü, bazılarının battığını keşfeder."],
+  ["1Ps.01","P","Identify different sources of sound.","Farklı ses kaynaklarını belirler."],
+  ["1Ps.02","P","Explore that as sound travels from a source it becomes quieter.","Sesin kaynaktan uzaklaştıkça zayıfladığını keşfeder."],
+  ["1Pe.01","P","Identify things that require electricity to work.","Çalışmak için elektriğe ihtiyaç duyan şeyleri belirler."],
+  ["1Pe.02","P","Explore, talk about and describe what happens when magnets approach and touch different materials.","Mıknatısın farklı maddelere yaklaşınca ve değince ne olduğunu keşfeder."],
+  ["1ESp.01","ES","Know that Earth is mostly covered in water.","Dünya'nın büyük bölümünün suyla kaplı olduğunu bilir."],
+  ["1ESp.02","ES","Describe land as being made of rock and soil.","Karanın kaya ve topraktan oluştuğunu betimler."],
+  ["1ESs.01","ES","Know that Earth is the planet on which we live.","Dünya'nın üzerinde yaşadığımız gezegen olduğunu bilir."],
+  ["1ESs.02","ES","Describe the Sun as a source of heat and light, and as one of many stars.","Güneş'i ısı ve ışık kaynağı, birçok yıldızdan biri olarak betimler."],
+  ["1SIC.01","SIC","Talk about how some of the scientific knowledge and thinking now was different in the past.","Bilimsel bilginin geçmişte nasıl farklı olduğunu konuşur."],
+  ["1SIC.02","SIC","Talk about how science explains how objects they use, or know about, work.","Bilimin, kullandığımız nesnelerin nasıl çalıştığını açıkladığını konuşur."],
+  ["1SIC.03","SIC","Know that everyone uses science and identify people who use science professionally.","Herkesin bilim kullandığını bilir; bilimi meslek olarak kullananları tanır."],
+  ["1SIC.04","SIC","Talk about how science helps us understand our effect on the world around us.","Bilimin, dünyaya etkimizi anlamamıza nasıl yardım ettiğini konuşur."]
+],chapters:[
+  {n:1,title:"Our Body",secs:[
+    {k:"A",title:"Our Body Parts",p:3,sb:"2–6",ab:"1",codes:["1Bs.03","1TWSc.04","1TWSc.05"]},
+    {k:"B",title:"Our Five Senses",p:7,sb:"7–15",ab:"2–6",codes:["1Bs.02","1TWSp.02","1TWSc.01","1TWSc.02","1TWSc.04","1TWSa.01","1SIC.01"]},
+    {k:"C",title:"Our Similarities and Differences",p:4,sb:"16–23",ab:"7–12",codes:["1Bp.04","1TWSp.01","1TWSc.01","1TWSc.05","1SIC.03"]}]},
+  {n:2,title:"Alive and Never Been Alive",secs:[
+    {k:"A",title:"Alive and Never Been Alive",p:4,sb:"24–29",ab:"13–15",codes:["1Bp.01","1TWSc.01","1TWSc.04","1TWSc.05","1SIC.01"]},
+    {k:"B",title:"Needs of Living Things",p:5,sb:"30–35",ab:"16–20",codes:["1Bp.02","1TWSp.01","1TWSp.02","1SIC.03"]}]},
+  {n:3,title:"Plants",secs:[
+    {k:"A",title:"Plants and Their Parts",p:5,sb:"36–44",ab:"21–23",codes:["1Bs.01","1TWSc.01","1TWSc.02","1TWSc.04","1TWSc.05","1SIC.04"]},
+    {k:"B",title:"What Plants Need",p:5,sb:"45–53",ab:"24–31",codes:["1Bp.03","1TWSp.01","1TWSp.02","1TWSc.02","1TWSc.03","1TWSc.05","1TWSa.01","1SIC.01","1SIC.02","1SIC.03"]}]},
+  {n:4,title:"Materials",secs:[
+    {k:"A",title:"Objects and Materials",p:7,sb:"54–65",ab:"32–35",codes:["1Cm.02","1Cm.01","1Cp.01","1Cp.02","1TWSc.01","1TWSc.05","1SIC.01","1SIC.02","1SIC.03"]},
+    {k:"B",title:"Changing Materials",p:4,sb:"66–75",ab:"36–42",codes:["1Cc.01","1TWSp.02","1TWSc.01","1TWSc.02","1TWSc.03","1TWSc.04","1TWSa.01","1SIC.04"]}]},
+  {n:5,title:"Movement of Objects",secs:[
+    {k:"A",title:"Moving Objects",p:6,sb:"76–83",ab:"43–45",codes:["1Pf.01","1Pf.02","1TWSp.01","1TWSp.02","1TWSc.03","1TWSc.05","1TWSa.01","1SIC.03"]},
+    {k:"B",title:"Floating and Sinking Objects",p:6,sb:"84–91",ab:"46–54",codes:["1Pf.03","1TWSp.02","1TWSc.01","1TWSc.02","1TWSc.05","1TWSa.01","1SIC.01","1SIC.02"]}]},
+  {n:6,title:"Sounds",secs:[
+    {k:"A",title:"Sources of Sound",p:3,sb:"92–98",ab:"55–56",codes:["1Ps.01","1TWSc.01","1TWSc.05"]},
+    {k:"B",title:"Travelling Sound",p:5,sb:"99–105",ab:"57–65",codes:["1Ps.02","1TWSp.01","1TWSp.02","1TWSc.03","1TWSa.01","1SIC.02","1SIC.03","1SIC.04"]}]},
+  {n:7,title:"Electricity",secs:[
+    {k:"A",title:"Electricity All Around Us",p:8,sb:"106–113",ab:"66–72",codes:["1Pe.01","1TWSp.01","1TWSc.01","1TWSc.05","1SIC.03","1SIC.04"]}]},
+  {n:8,title:"Magnets",secs:[
+    {k:"A",title:"Magnets",p:9,sb:"114–125",ab:"73–79",codes:["1Pe.02","1TWSp.02","1TWSc.01","1TWSc.02","1TWSc.05","1TWSa.01","1SIC.02"]}]},
+  {n:9,title:"Earth and the Sun",secs:[
+    {k:"A",title:"Earth",p:4,sb:"126–132",ab:"80–82",codes:["1ESs.01","1ESp.01","1ESp.02","1TWSc.02","1TWSc.04","1TWSc.05","1SIC.01","1SIC.03","1SIC.04"]},
+    {k:"B",title:"The Sun",p:5,sb:"133–140",ab:"83–88",codes:["1ESs.02","1TWSp.01","1TWSp.02","1TWSc.04","1TWSc.05","1TWSa.01","1SIC.02"]}]}
+],camb:{
+  "1.1 My body, your body, everybody!":["1SIC.03","1Bs.03","1Bp.04","1Bs.02","1Ps.01","1Ps.02","1TWSc.05","1TWSp.01","1TWSa.01","1TWSc.01","1TWSc.04"],
+  "1.2 What is it made of?":["1SIC.02","1SIC.03","1Cm.01","1Cm.02","1Cp.01","1Cp.02","1Cc.01","1Pf.03","1TWSc.01","1TWSc.05","1TWSa.01","1TWSc.02","1TWSc.04","1TWSp.02"],
+  "1.3 Plants":["1SIC.03","1SIC.04","1Bs.01","1Bp.03","1TWSc.02","1TWSp.01","1TWSc.05","1TWSc.01","1TWSc.03","1TWSp.02"],
+  "1.4 The science of my toys":["1SIC.01","1SIC.02","1SIC.03","1Cm.01","1Cp.01","1Pe.01","1Pf.01","1Pf.02","1Pe.02","1TWSc.01","1TWSc.05","1TWSp.01","1TWSp.02"],
+  "1.5 Staying alive":["1SIC.03","1SIC.04","1Bp.01","1Bp.02","1Bp.03","1TWSc.01","1TWSp.02","1TWSc.03"],
+  "1.6 Journey to the International Space Station":["1SIC.03","1Bp.02","1Cp.01","1ESs.02","1Pf.02","1ESp.01","1ESp.02","1ESs.01","1TWSp.01","1TWSp.02","1TWSc.03","1TWSc.04","1TWSa.01"]
+}},
+  2:{label:"2. Sınıf",codes:[
+  ["2TWSm.01","TWS","Know that a model represents an object or idea in a clear way.","Modelin bir nesneyi ya da fikri açık biçimde temsil ettiğini bilir."],
+  ["2TWSm.02","TWS","Make and use a physical model of a familiar system or idea.","Tanıdık bir sistem ya da fikrin fiziksel modelini yapar ve kullanır."],
+  ["2TWSm.03","TWS","Describe the difference between a diagram and a picture.","Diyagram (şema) ile resim arasındaki farkı anlatır."],
+  ["2TWSp.01","TWS","Ask questions about the world around us and talk about how to find answers.","Çevresi hakkında soru sorar, cevabı nasıl bulacağını konuşur."],
+  ["2TWSp.02","TWS","Make predictions about what they think will happen.","Ne olacağına dair tahmin yapar."],
+  ["2TWSc.01","TWS","Sort and group objects, materials and living things based on observations of the similarities and differences between them.","Benzerlik ve farklılıklara göre nesneleri, maddeleri ve canlıları sınıflar."],
+  ["2TWSc.02","TWS","Use given equipment appropriately.","Verilen araç gereci uygun şekilde kullanır."],
+  ["2TWSc.03","TWS","Take measurements in non-standard units.","Standart olmayan birimlerle ölçer (karış, adım, küp vb.)."],
+  ["2TWSc.04","TWS","Follow instructions safely when doing practical work.","Uygulamalı çalışmada yönergeleri güvenle izler."],
+  ["2TWSc.05","TWS","Use a given secondary information source to find an answer to a question.","Verilen ikincil bir bilgi kaynağından (kitap, video vb.) soruya cevap bulur."],
+  ["2TWSc.06","TWS","Collect and record observations and/or measurements by annotating images and completing simple tables.","Gözlemleri resim etiketleyerek ve basit tablo doldurarak kaydeder."],
+  ["2TWSa.01","TWS","Describe what happened during an enquiry and if it matched their predictions.","Deneyde ne olduğunu ve tahminiyle uyuşup uyuşmadığını anlatır."],
+  ["2TWSa.02","TWS","Identify simple patterns in results, e.g. increasing and decreasing patterns.","Sonuçlardaki basit örüntüleri (artma, azalma) fark eder."],
+  ["2TWSa.03","TWS","Present and interpret results using tables and block graphs.","Sonuçları tablo ve blok grafikle sunar ve yorumlar."],
+  ["2Bs.01","B","Compare how animals, including humans, are similar and different in their external body parts and skin covering.","Hayvanların (insan dahil) dış vücut kısımları ve deri örtüsü açısından benzerlik ve farklarını karşılaştırır."],
+  ["2Bs.02","B","Identify the different types of human teeth, explain how they are suited to their functions and describe how to care for teeth.","İnsan diş türlerini tanır, görevlerine nasıl uyduğunu açıklar, diş bakımını anlatır."],
+  ["2Bp.01","B","Know that humans need to manage diet, maintain hygiene and move regularly to be healthy.","Sağlıklı olmak için beslenme, hijyen ve düzenli hareket gerektiğini bilir."],
+  ["2Bp.02","B","Describe what illness is and describe the common signs of illness in humans.","Hastalığın ne olduğunu ve insanlarda yaygın hastalık belirtilerini anlatır."],
+  ["2Bp.03","B","Describe how the offspring of animals, including humans, change as they become older.","Hayvan yavrularının (insan dahil) büyüdükçe nasıl değiştiğini anlatır."],
+  ["2Bp.04","B","Know that animals, including humans, produce offspring that have a combination of features from their parents.","Yavruların anne babadan gelen özelliklerin birleşimini taşıdığını bilir."],
+  ["2Be.01","B","Know that an environment in which a plant or animal naturally lives is its habitat.","Bir bitki ya da hayvanın doğal olarak yaşadığı çevrenin onun habitatı olduğunu bilir."],
+  ["2Be.02","B","Know that different habitats contain different plants and animals.","Farklı habitatlarda farklı bitki ve hayvanlar bulunduğunu bilir."],
+  ["2Be.03","B","Identify similarities and differences between local environments in terms of hot, cold, dry, wet, many plants, few plants, many animals and few animals.","Yerel çevreleri sıcak/soğuk, kuru/ıslak, çok/az bitki, çok/az hayvan açısından karşılaştırır."],
+  ["2Cm.01","C","Understand that some materials occur naturally and others are manufactured.","Bazı maddelerin doğal, bazılarının üretilmiş (yapay) olduğunu anlar."],
+  ["2Cp.01","C","Describe a property as a characteristic of a material and understand that materials can have more than one property.","Özelliğin maddenin bir niteliği olduğunu ve bir maddenin birden çok özelliği olabileceğini anlar."],
+  ["2Cp.02","C","Explain why materials are chosen for specific purposes on the basis of their properties.","Maddelerin belirli amaçlar için özelliklerine göre seçildiğini açıklar."],
+  ["2Cp.03","C","Know that materials can be tested to determine their properties.","Maddelerin özelliklerini belirlemek için test edilebileceğini bilir."],
+  ["2Cc.01","C","Know that some changes can turn a material into a different material.","Bazı değişimlerin bir maddeyi başka bir maddeye dönüştürebildiğini bilir."],
+  ["2Pf.01","P","Know that forces can change the movement of an object.","Kuvvetlerin nesnenin hareketini değiştirebildiğini bilir."],
+  ["2Pf.02","P","Know that forces can change the shape of an object.","Kuvvetlerin nesnenin şeklini değiştirebildiğini bilir."],
+  ["2Pf.03","P","Recognise that things will only speed up, slow down or change direction when something else causes them to do so.","Nesnelerin ancak bir şey etki ettiğinde hızlandığını, yavaşladığını ya da yön değiştirdiğini fark eder."],
+  ["2Ps.01","P","Know that there are many light sources, including the Sun.","Güneş dahil birçok ışık kaynağı olduğunu bilir."],
+  ["2Ps.02","P","Know that darkness is the absence of light.","Karanlığın ışığın yokluğu olduğunu bilir."],
+  ["2Pe.01","P","Identify how we use electricity and describe how to be safe with it.","Elektriği nasıl kullandığımızı belirler, elektrikle güvenli olmayı anlatır."],
+  ["2Pe.02","P","Recognise the components of simple circuits (limited to cells, wires and lamps).","Basit devrenin bileşenlerini tanır (pil, kablo, ampul)."],
+  ["2Pe.03","P","Explore the construction of simple series circuits (limited to cells, wires and lamps).","Basit seri devre kurmayı keşfeder (pil, kablo, ampul)."],
+  ["2ESp.01","ES","Describe and compare different types of rock.","Farklı kaya türlerini betimler ve karşılaştırır."],
+  ["2ESp.02","ES","Know rocks are extracted from the Earth in different ways, including from quarries, mines and riverbeds.","Kayaların taş ocağı, maden ve nehir yatağı gibi farklı yollarla çıkarıldığını bilir."],
+  ["2ESp.03","ES","Know that human activity can affect the environment.","İnsan etkinliğinin çevreyi etkileyebildiğini bilir."],
+  ["2ESs.01","ES","Describe the apparent movement of the Sun during the day.","Güneş'in gün boyunca görünen hareketini betimler."],
+  ["2SIC.01","SIC","Talk about how some of the scientific knowledge and thinking now was different in the past.","Bilimsel bilginin geçmişte nasıl farklı olduğunu konuşur."],
+  ["2SIC.02","SIC","Talk about how science explains how objects they use, or know about, work.","Bilimin, kullandığımız nesnelerin nasıl çalıştığını açıkladığını konuşur."],
+  ["2SIC.03","SIC","Know that everyone uses science and identify people who use science professionally.","Herkesin bilim kullandığını bilir; bilimi meslek olarak kullananları tanır."],
+  ["2SIC.04","SIC","Talk about how science helps us understand our effect on the world around us.","Bilimin, dünyaya etkimizi anlamamıza nasıl yardım ettiğini konuşur."]
+],chapters:[
+  {n:1,title:"Animals",secs:[
+    {k:"A",title:"Animal Bodies",p:4,sb:"2–9",ab:"1–3",codes:["2Bs.01","2TWSm.03","2TWSc.01","2TWSc.02","2TWSc.06"]},
+    {k:"B",title:"Animals and Their Young",p:6,sb:"10–21",ab:"4–11",codes:["2Bp.03","2Bp.04","2TWSp.01","2TWSc.01","2TWSc.03","2TWSc.05","2TWSc.06","2TWSa.02","2SIC.03"]}]},
+  {n:2,title:"Being Healthy",secs:[
+    {k:"A",title:"Taking Care of Our Body",p:3,sb:"22–30",ab:"12–15",codes:["2Bp.01","2TWSm.01","2TWSm.02","2TWSp.01","2TWSp.02","2TWSc.01","2TWSc.02","2TWSc.03","2TWSc.04","2TWSc.06","2TWSa.01"]},
+    {k:"B",title:"Our Teeth",p:3,sb:"31–36",ab:"16",codes:["2Bs.02","2TWSm.01","2TWSm.02","2TWSc.06","2SIC.03"]},
+    {k:"C",title:"What Is Illness?",p:5,sb:"37–43",ab:"17–23",codes:["2Bp.02","2TWSm.03","2TWSp.01","2TWSc.01","2TWSc.05","2TWSc.06","2SIC.01","2SIC.03","2SIC.04"]}]},
+  {n:3,title:"Habitats",secs:[
+    {k:"A",title:"Environment and Habitats",p:4,sb:"44–48",ab:"24–26",codes:["2Be.01","2TWSm.01","2TWSm.02","2TWSp.02","2TWSc.02","2TWSc.03","2TWSc.06","2TWSa.01","2SIC.03","2SIC.04"]},
+    {k:"B",title:"Different Habitats",p:6,sb:"49–63",ab:"27–34",codes:["2Be.02","2Be.03","2TWSp.01","2TWSp.02","2TWSc.01","2TWSc.05","2TWSa.01","2SIC.02","2SIC.03","2SIC.04"]}]},
+  {n:4,title:"Materials",secs:[
+    {k:"A",title:"Different Materials",p:3,sb:"64–71",ab:"35",codes:["2Cm.01","2TWSp.01","2TWSc.01","2TWSc.05","2TWSc.06","2TWSa.03"]},
+    {k:"B",title:"Know Your Materials",p:10,sb:"72–83",ab:"36–47",codes:["2Cc.01","2Cp.01","2Cp.02","2Cp.03","2TWSm.03","2TWSp.01","2TWSp.02","2TWSc.01","2TWSc.02","2TWSc.03","2TWSc.04","2TWSc.05","2TWSc.06","2TWSa.01","2TWSa.02","2TWSa.03","2SIC.01","2SIC.02","2SIC.03","2SIC.04"]}]},
+  {n:5,title:"Forces",secs:[
+    {k:"A",title:"Changing Movement",p:3,sb:"84–89",ab:"48–49",codes:["2Pf.01","2Pf.03","2TWSp.02","2TWSc.06","2TWSa.01","2TWSa.02","2SIC.02"]},
+    {k:"B",title:"Changing Shapes",p:5,sb:"90–95",ab:"50–54",codes:["2Pf.02","2TWSm.01","2TWSm.02","2TWSc.01","2TWSc.03","2TWSc.05","2TWSc.06","2SIC.03"]}]},
+  {n:6,title:"Light and Darkness",secs:[
+    {k:"A",title:"Light Sources",p:3,sb:"96–101",ab:"55–56",codes:["2Ps.01","2TWSc.01","2TWSc.02","2TWSc.04","2TWSc.06"]},
+    {k:"B",title:"What Is Darkness?",p:5,sb:"102–107",ab:"57–61",codes:["2Ps.02","2TWSc.01","2TWSc.05","2TWSc.06","2SIC.03"]}]},
+  {n:7,title:"More about Electricity",secs:[
+    {k:"A",title:"Electricity",p:4,sb:"108–118",ab:"62–63",codes:["2Pe.01","2TWSc.01","2TWSc.06","2TWSa.03","2SIC.03"]},
+    {k:"B",title:"A Simple Circuit",p:5,sb:"119–128",ab:"64–72",codes:["2Pe.02","2Pe.03","2TWSm.03","2TWSp.02","2TWSc.02","2TWSc.04","2TWSc.06","2TWSa.01","2SIC.02","2SIC.03"]}]},
+  {n:8,title:"Rocks",secs:[
+    {k:"A",title:"Different Types of Rocks",p:3,sb:"130–136",ab:"73–75",codes:["2ESp.01","2TWSp.01","2TWSp.02","2TWSc.01","2TWSc.02","2TWSc.03","2TWSc.04","2TWSc.06","2TWSa.03"]},
+    {k:"B",title:"Rock Extraction",p:5,sb:"137–143",ab:"76–80",codes:["2ESp.02","2TWSm.01","2TWSm.02","2TWSp.01","2TWSc.05","2SIC.01","2SIC.02","2SIC.03","2SIC.04"]}]},
+  {n:9,title:"Changes to Our Environment",secs:[
+    {k:"A",title:"Our Environment",p:3,sb:"144–150",ab:"81–83",codes:["2ESp.03","2TWSm.01","2TWSm.02","2SIC.04"]},
+    {k:"B",title:"Our Activities and the Environment",p:5,sb:"151–157",ab:"84–89",codes:["2ESp.03","2TWSp.01","2TWSc.05","2TWSc.06","2SIC.01","2SIC.02","2SIC.03","2SIC.04"]}]},
+  {n:10,title:"The Sun",secs:[
+    {k:"A",title:"The Sun",p:5,sb:"158–166",ab:"90–95",codes:["2ESs.01","2TWSm.01","2TWSm.02","2TWSp.01","2TWSc.04","2TWSc.05","2TWSc.06","2TWSa.02","2SIC.01"]}]}
+],camb:{}},
+  3:{label:"3. Sınıf",codes:[
+  ["3TWSm.01","TWS","Know that there are different types of models in science, including diagrams and physical models that we can touch.","Bilimde şema ve dokunulabilir fiziksel model gibi farklı model türleri olduğunu bilir."],
+  ["3TWSm.02","TWS","Make and use physical models.","Fiziksel model yapar ve kullanır."],
+  ["3TWSm.03","TWS","Draw a diagram to represent a real world situation and/or scientific idea.","Gerçek bir durumu ya da bilimsel fikri şema (diyagram) çizerek gösterir."],
+  ["3TWSp.01","TWS","Ask scientific questions that can be investigated.","Araştırılabilir bilimsel sorular sorar."],
+  ["3TWSp.02","TWS","Know that there are five main types of scientific enquiry (research, fair testing, observing over time, identifying and classifying, and pattern seeking).","Beş ana bilimsel araştırma türünü bilir: araştırma, adil test, zaman içinde gözlem, tanımlama-sınıflama, örüntü arama."],
+  ["3TWSp.03","TWS","Make a prediction describing some possible outcomes of an enquiry.","Araştırmanın olası sonuçlarını betimleyen bir tahmin yapar."],
+  ["3TWSp.04","TWS","Identify risks and explain how to stay safe during practical work.","Uygulamalı çalışmadaki riskleri belirler, nasıl güvende kalınacağını açıklar."],
+  ["3TWSc.01","TWS","Use observations and tests to sort, group and classify objects or living things.","Gözlem ve testlerle nesneleri ya da canlıları sıralar, gruplar, sınıflar."],
+  ["3TWSc.02","TWS","Choose equipment from a provided selection and use it appropriately.","Verilen seçenekler arasından araç gereç seçer ve uygun kullanır."],
+  ["3TWSc.03","TWS","Take measurements in standard units, describing the advantage of standard units over non-standard units.","Standart birimlerle ölçer; standart birimin avantajını açıklar."],
+  ["3TWSc.04","TWS","Carry out practical work safely.","Uygulamalı çalışmayı güvenli biçimde yapar."],
+  ["3TWSc.05","TWS","Use secondary information sources to research an answer to a question.","Bir soruya cevap bulmak için ikincil bilgi kaynaklarını (kitap, internet vb.) kullanır."],
+  ["3TWSc.06","TWS","Collect and record observations and/or measurements in tables and diagrams.","Gözlem ve ölçümleri tablo ve şemalarla kaydeder."],
+  ["3TWSa.01","TWS","Identify whether results support, or do not support, a prediction.","Sonuçların tahmini destekleyip desteklemediğini belirler."],
+  ["3TWSa.02","TWS","Describe simple patterns in results.","Sonuçlardaki basit örüntüleri betimler."],
+  ["3TWSa.03","TWS","Make a conclusion from results and relate it to the scientific question being investigated.","Sonuçlardan çıkarım yapar ve araştırma sorusuyla ilişkilendirir."],
+  ["3TWSa.04","TWS","Present and interpret results using tables and bar charts.","Sonuçları tablo ve sütun grafikle sunar ve yorumlar."],
+  ["3Bs.01","B","Describe the function of the major parts of flowering plants (limited to roots, leaves, stems and flowers).","Çiçekli bitkinin ana kısımlarının (kök, yaprak, gövde, çiçek) görevini betimler."],
+  ["3Bs.02","B","Identify the distinguishing features of different groups of animals, including fish, reptiles, mammals, birds, amphibians and insects.","Hayvan gruplarının (balık, sürüngen, memeli, kuş, amfibi, böcek) ayırt edici özelliklerini belirler."],
+  ["3Bs.03","B","Identify some of the important organs in humans (limited to brain, heart, stomach, intestine and lungs) and describe their functions.","İnsanın önemli organlarını (beyin, kalp, mide, bağırsak, akciğer) tanır ve görevlerini betimler."],
+  ["3Bp.01","B","Describe differences between things that are living, that were once alive and that have never lived.","Canlı, bir zamanlar canlı olan ve hiç canlı olmamış şeyler arasındaki farkları betimler."],
+  ["3Bp.02","B","Know that life processes common to plants and animals include nutrition, growth, movement and reproduction.","Bitki ve hayvanların ortak yaşam süreçlerini bilir: beslenme, büyüme, hareket, üreme."],
+  ["3Bp.03","B","Know that plants need appropriate conditions, including temperature, light and water, to be healthy.","Bitkilerin sağlıklı olmak için uygun sıcaklık, ışık ve suya ihtiyacı olduğunu bilir."],
+  ["3Bp.04","B","Describe and compare how the offspring of different animals grow into adults, including humans, birds, frogs and butterflies.","Farklı hayvan yavrularının (insan, kuş, kurbağa, kelebek) nasıl yetişkine dönüştüğünü betimler ve karşılaştırır."],
+  ["3Be.01","B","Identify and describe simple food chains, where plants are producers and animals are consumers of plants and/or other animals.","Basit besin zincirlerini tanır; bitkiler üretici, hayvanlar tüketicidir."],
+  ["3Cm.01","C","Know that materials can be solids, liquids or gases.","Maddelerin katı, sıvı ya da gaz olabildiğini bilir."],
+  ["3Cm.02","C","Understand that a mixture contains two or more materials, where the materials can be physically separated.","Karışımın fiziksel olarak ayrılabilen iki ya da daha çok maddeden oluştuğunu anlar."],
+  ["3Cp.01","C","Describe differences in the properties of solids and liquids.","Katı ve sıvıların özelliklerindeki farkları betimler."],
+  ["3Cp.02","C","Understand that materials, generally, retain their properties within a mixture.","Maddelerin karışım içinde genellikle özelliklerini koruduğunu anlar."],
+  ["3Cp.03","C","Describe how to separate solid/solid mixtures based on the physical properties of the solids (processes involving dissolving are not required).","Katı/katı karışımları katıların fiziksel özelliklerine göre nasıl ayıracağını betimler."],
+  ["3Cp.04","C","Describe how to separate a mixture of an insoluble solid and a liquid.","Çözünmeyen katı ile sıvı karışımını nasıl ayıracağını betimler."],
+  ["3Cc.01","C","Know that when a solid dissolves in a liquid the solid is still present, and this is an example of making a mixture.","Katı sıvıda çözününce katının hâlâ orada olduğunu ve bunun bir karışım olduğunu bilir."],
+  ["3Pf.01","P","Know that forces can be measured with a forcemeter and the standard unit of force is the newton (N).","Kuvvetin kuvvetölçerle ölçüldüğünü ve biriminin newton (N) olduğunu bilir."],
+  ["3Pf.02","P","Know that gravity on Earth is a force that pulls towards the centre of the Earth.","Yer çekiminin Dünya'nın merkezine doğru çeken bir kuvvet olduğunu bilir."],
+  ["3Pf.03","P","Know that friction is a force created between surfaces when they move against each other and it makes this movement harder.","Sürtünmenin, birbirine sürtünen yüzeyler arasında oluşan ve hareketi zorlaştıran bir kuvvet olduğunu bilir."],
+  ["3Pf.04","P","Describe how smooth and rough surfaces can generate different amounts of friction.","Pürüzlü ve pürüzsüz yüzeylerin farklı miktarda sürtünme oluşturduğunu betimler."],
+  ["3Ps.01","P","Investigate and describe how light can pass through some materials and is blocked by others, and use the terms transparent, translucent and opaque.","Işığın bazı maddelerden geçtiğini, bazılarınca engellendiğini araştırır; saydam, yarı saydam, opak terimlerini kullanır."],
+  ["3Ps.02","P","Know that shadows are formed when light from a source is blocked by an object.","Gölgenin, ışık kaynağından gelen ışığın bir nesne tarafından engellenmesiyle oluştuğunu bilir."],
+  ["3Ps.03","P","Investigate and describe how the size of a shadow is affected by the position of the object and the position of the light source.","Gölge boyutunun nesnenin ve ışık kaynağının konumuna göre nasıl değiştiğini araştırır."],
+  ["3Pe.01","P","Describe magnets as having a north pole and a south pole.","Mıknatısın kuzey ve güney kutbu olduğunu betimler."],
+  ["3Pe.02","P","Describe how magnets interact when near each other, using the terms repel and attract.","Mıknatısların birbirine yaklaşınca nasıl etkileştiğini iter/çeker terimleriyle betimler."],
+  ["3Pe.03","P","Investigate how some materials are magnetic but many are not.","Bazı maddelerin manyetik olduğunu, çoğunun olmadığını araştırır."],
+  ["3ESp.01","ES","Know that planet Earth is the source of all the materials we use and that many useful materials, including oil, natural gas and metals, come from or are found in rocks.","Kullandığımız tüm maddelerin kaynağının Dünya olduğunu; petrol, doğal gaz ve metallerin kayalardan geldiğini bilir."],
+  ["3ESp.02","ES","Know that fossils are impressions, or remains, of things that were once alive.","Fosillerin bir zamanlar canlı olan şeylerin izi ya da kalıntısı olduğunu bilir."],
+  ["3ESs.01","ES","Describe the regular change in the position and appearance of the Moon.","Ay'ın konum ve görünümündeki düzenli değişimi betimler."],
+  ["3ESs.02","ES","Describe the relative movement of the Earth and Moon.","Dünya ile Ay'ın birbirine göre hareketini betimler."],
+  ["3ESs.03","ES","Describe the Earth, Sun and Moon as approximately spherical.","Dünya, Güneş ve Ay'ın yaklaşık küre biçiminde olduğunu betimler."],
+  ["3SIC.01","SIC","Talk about how some of the scientific knowledge and thinking now was different in the past.","Bilimsel bilginin geçmişte nasıl farklı olduğunu konuşur."],
+  ["3SIC.02","SIC","Talk about how science explains how objects they use, or know about, work.","Bilimin, kullandığımız nesnelerin nasıl çalıştığını açıkladığını konuşur."],
+  ["3SIC.03","SIC","Know that everyone uses science and identify people who use science professionally.","Herkesin bilim kullandığını bilir; bilimi meslek olarak kullananları tanır."],
+  ["3SIC.04","SIC","Talk about how science helps us understand our effect on the world around us.","Bilimin, dünyaya etkimizi anlamamıza nasıl yardım ettiğini konuşur."]
+],chapters:[
+  {n:1,title:"Things Around Us",secs:[
+    {k:"A",title:"How Things Are Grouped",p:3,sb:"3–9",ab:"1–2",codes:["3Bp.01","3TWSp.02","3TWSc.01","3TWSc.06"]},
+    {k:"B",title:"Life Processes",p:5,sb:"10–21",ab:"3–11",codes:["3Bp.02","3TWSm.01","3TWSm.03","3TWSp.01","3TWSp.02","3TWSp.04","3TWSc.01","3TWSc.02","3TWSc.03","3TWSc.05","3TWSc.06","3TWSa.01","3TWSa.03","3SIC.03","3SIC.04"]}]},
+  {n:2,title:"Animals",secs:[
+    {k:"A",title:"Different Groups of Animals",p:3,sb:"22–31",ab:"12",codes:["3Bs.02","3TWSm.01","3TWSm.03","3TWSp.01","3TWSp.02","3TWSc.01","3TWSc.05","3SIC.01","3SIC.03","3SIC.04"]},
+    {k:"B",title:"Life Cycles",p:5,sb:"32–39",ab:"13–22",codes:["3Bp.04","3TWSm.01","3TWSp.01","3TWSc.02","3TWSc.05","3TWSc.06","3TWSa.02","3TWSa.03","3TWSa.04","3SIC.03"]}]},
+  {n:3,title:"Food Chains",secs:[
+    {k:"A",title:"Food Chains",p:5,sb:"40–50",ab:"23–29",codes:["3Be.01","3TWSm.01","3TWSm.03","3TWSp.02","3TWSp.04","3TWSc.01","3TWSc.05","3TWSc.06","3SIC.03","3SIC.04"]}]},
+  {n:4,title:"Parts of Plants and Humans",secs:[
+    {k:"A",title:"Parts of a Flowering Plant",p:3,sb:"51–54",ab:"30–32",codes:["3Bs.01","3TWSm.03","3TWSp.02","3TWSc.04","3TWSc.06","3TWSa.01","3TWSa.03"]},
+    {k:"B",title:"Growing Healthy Plants",p:7,sb:"55–62",ab:"33–35",codes:["3Bp.03","3TWSm.01","3TWSm.03","3TWSp.01","3TWSp.02","3TWSp.03","3TWSp.04","3TWSc.02","3TWSc.03","3TWSc.04","3TWSc.05","3TWSc.06","3TWSa.01","3TWSa.03","3TWSa.04","3SIC.02","3SIC.04"]},
+    {k:"C",title:"Human Organs",p:4,sb:"63–70",ab:"36–41",codes:["3Bs.03","3TWSm.01","3TWSm.02","3TWSp.02","3TWSc.05","3SIC.01","3SIC.02","3SIC.03"]}]},
+  {n:5,title:"Matter and Mixtures",secs:[
+    {k:"A",title:"Solids, Liquids and Gases",p:3,sb:"71–75",ab:"42",codes:["3Cm.01","3Cp.01","3TWSc.01","3TWSc.02","3TWSc.06","3TWSp.02","3TWSa.03"]},
+    {k:"B",title:"Solid/Solid Mixtures",p:3,sb:"76–78",ab:"43–44",codes:["3Cm.02","3Cp.02","3Cp.03","3TWSc.02","3TWSc.04","3TWSc.06","3SIC.02"]},
+    {k:"C",title:"Solid/Liquid Mixtures",p:6,sb:"79–86",ab:"45–49",codes:["3Cp.04","3Cc.01","3TWSp.01","3TWSc.02","3TWSc.04","3TWSc.06","3TWSa.03","3SIC.02"]}]},
+  {n:6,title:"Friction and Gravity",secs:[
+    {k:"A",title:"Measuring Forces",p:2,sb:"87–90",ab:"50–51",codes:["3Pf.01","3TWSc.02","3TWSc.03","3TWSc.06","3TWSa.02","3TWSa.04","3SIC.02"]},
+    {k:"B",title:"Friction and Surfaces",p:5,sb:"91–102",ab:"52",codes:["3Pf.03","3Pf.04","3TWSm.03","3TWSp.02","3TWSp.03","3TWSc.02","3TWSc.03","3TWSc.06","3TWSa.03","3TWSa.04","3SIC.02"]},
+    {k:"C",title:"Gravity",p:5,sb:"103–107",ab:"53–57",codes:["3Pf.02","3Pf.03","3TWSp.03","3TWSc.02","3TWSc.04","3TWSc.05","3SIC.02","3SIC.03"]}]},
+  {n:7,title:"Light and Shadows",secs:[
+    {k:"A",title:"Transparent, Translucent and Opaque Materials",p:2,sb:"108–113",ab:"58",codes:["3Ps.01","3TWSp.02","3TWSp.03","3TWSc.01","3TWSc.06","3SIC.02"]},
+    {k:"B",title:"Shadows",p:5,sb:"114–122",ab:"59–65",codes:["3Ps.02","3Ps.03","3TWSm.03","3TWSp.01","3TWSp.02","3TWSp.03","3TWSp.04","3TWSc.03","3TWSa.01","3TWSa.02","3TWSa.03","3TWSa.04","3SIC.02","3SIC.03"]}]},
+  {n:8,title:"Properties of Magnets",secs:[
+    {k:"A",title:"Magnets",p:4,sb:"123–126",ab:"66–68",codes:["3Pe.01","3Pe.02","3TWSm.03","3TWSp.01","3TWSc.06","3TWSa.03","3SIC.02"]},
+    {k:"B",title:"Magnetic and Non-magnetic Materials",p:4,sb:"127–135",ab:"69–73",codes:["3Pe.03","3TWSm.03","3TWSp.02","3TWSp.03","3TWSc.01","3TWSc.06","3TWSa.01","3TWSa.02","3TWSa.03","3SIC.02"]}]},
+  {n:9,title:"Rocks and Fossils",secs:[
+    {k:"A",title:"Resources in the Earth",p:5,sb:"136–141",ab:"74–75",codes:["3ESp.01","3TWSp.02","3TWSc.05","3TWSc.06","3SIC.03","3SIC.04"]},
+    {k:"B",title:"Fossils",p:3,sb:"142–148",ab:"76–82",codes:["3ESp.02","3TWSm.01","3TWSm.02","3TWSp.04","3TWSc.01","3TWSc.04","3TWSc.06","3SIC.01","3SIC.03","3SIC.04"]}]},
+  {n:10,title:"Earth, the Sun and the Moon",secs:[
+    {k:"A",title:"Shape of Earth, the Sun and the Moon",p:2,sb:"149–153",ab:"83",codes:["3ESs.03","3TWSm.01","3TWSm.02","3TWSc.05","3SIC.03"]},
+    {k:"B",title:"Earth and the Moon",p:6,sb:"154–159",ab:"84–88",codes:["3ESs.01","3ESs.02","3TWSm.01","3TWSm.02","3TWSp.02","3TWSp.04","3TWSc.04","3TWSc.06","3SIC.01","3SIC.03"]}]}
+],camb:{}},
+  4:{label:"4. Sınıf",codes:[
+  ["4TWSm.01","TWS","Know that models are not fully representative of a real world situation and/or scientific idea.","Modellerin gerçek durumu ya da bilimsel fikri tam olarak temsil etmediğini bilir."],
+  ["4TWSm.02","TWS","Use models to show relationships, quantities or scale.","İlişkileri, miktarları ya da ölçeği göstermek için model kullanır."],
+  ["4TWSm.03","TWS","Draw a diagram to represent a real world situation and/or scientific idea.","Gerçek bir durumu ya da bilimsel fikri şema (diyagram) çizerek gösterir."],
+  ["4TWSp.01","TWS","Ask scientific questions that can be investigated.","Araştırılabilir bilimsel sorular sorar."],
+  ["4TWSp.02","TWS","Know that there are five main types of scientific enquiry (research, fair testing, observing over time, identifying and classifying, and pattern seeking).","Beş ana bilimsel araştırma türünü bilir: araştırma, adil test, zaman içinde gözlem, tanımlama-sınıflama, örüntü arama."],
+  ["4TWSp.03","TWS","Make a prediction describing some possible outcomes of an enquiry.","Araştırmanın olası sonuçlarını betimleyen bir tahmin yapar."],
+  ["4TWSp.04","TWS","Identify variables that need to be taken into account when doing a fair test and identify what needs to be changed, kept the same and measured for a specific experiment or investigation","Adil testte değişkenleri belirler: neyin değiştirileceğini, sabit tutulacağını ve ölçüleceğini söyler."],
+  ["4TWSp.05","TWS","Identify risks and explain how to stay safe during practical work.","Uygulamalı çalışmadaki riskleri belirler, nasıl güvende kalınacağını açıklar."],
+  ["4TWSc.01","TWS","Use observations and tests to sort, group and classify objects or living things.","Gözlem ve testlerle nesneleri ya da canlıları sıralar, gruplar, sınıflar."],
+  ["4TWSc.02","TWS","Use keys to identify objects, materials and living things.","Nesneleri, maddeleri ve canlıları tanımlamak için anahtar (tanı anahtarı) kullanır."],
+  ["4TWSc.03","TWS","Choose equipment from a provided selection and use it appropriately.","Verilen seçenekler arasından araç gereç seçer ve uygun kullanır."],
+  ["4TWSc.04","TWS","Know that repeated measurements and/or observations can give more reliable data.","Tekrarlanan ölçüm ve gözlemlerin daha güvenilir veri verdiğini bilir."],
+  ["4TWSc.05","TWS","Take measurements in standard units, describing the advantage of standard units over non-standard units.","Standart birimlerle ölçer; standart birimin avantajını açıklar."],
+  ["4TWSc.06","TWS","Carry out practical work safely.","Uygulamalı çalışmayı güvenli biçimde yapar."],
+  ["4TWSc.07","TWS","Use secondary information sources to research an answer to a question.","Bir soruya cevap bulmak için ikincil bilgi kaynaklarını kullanır."],
+  ["4TWSc.08","TWS","Collect and record observations and/or measurements in tables and diagrams.","Gözlem ve ölçümleri tablo ve şemalarla kaydeder."],
+  ["4TWSa.01","TWS","Identify whether results support, or do not support, a prediction.","Sonuçların tahmini destekleyip desteklemediğini belirler."],
+  ["4TWSa.02","TWS","Describe simple patterns in results.","Sonuçlardaki basit örüntüleri betimler."],
+  ["4TWSa.03","TWS","Make a conclusion from results and relate it to the scientific question being investigated.","Sonuçlardan çıkarım yapar ve araştırma sorusuyla ilişkilendirir."],
+  ["4TWSa.04","TWS","Present and interpret results using tables, bar charts and dot plots.","Sonuçları tablo, sütun grafik ve nokta grafikle sunar ve yorumlar."],
+  ["4Bs.01","B","Identify some of the important bones in the human body (limited to skull, jaw, rib cage, hip, spine, leg bones and arm bones).","İnsan vücudundaki önemli kemikleri tanır: kafatası, çene, göğüs kafesi, kalça, omurga, bacak ve kol kemikleri."],
+  ["4Bs.02","B","Know that bones move because pairs of muscles that are attached to them contract and relax.","Kemiklerin, bağlı kas çiftlerinin kasılıp gevşemesiyle hareket ettiğini bilir."],
+  ["4Bs.03","B","Describe the important functions of skeletons (limited to protecting and supporting organs, enabling movement and giving shape to the body).","İskeletin görevlerini betimler: organları korur ve destekler, hareketi sağlar, vücuda şekil verir."],
+  ["4Bs.04","B","Know that some animals have an exoskeleton.","Bazı hayvanların dış iskeleti olduğunu bilir."],
+  ["4Bs.05","B","Identify vertebrates as animals with a backbone and invertebrates as animals without a backbone.","Omurgalıları omurgası olan, omurgasızları omurgası olmayan hayvanlar olarak tanır."],
+  ["4Bp.01","B","Know that medicines can be used to treat some illnesses, and describe how to use them safely.","İlaçların bazı hastalıkları tedavi ettiğini bilir ve güvenli kullanımını betimler."],
+  ["4Bp.02","B","Know that plants and animals can have infectious diseases, and vaccinations can prevent some infectious diseases of animals.","Bitki ve hayvanların bulaşıcı hastalıklara yakalanabildiğini, aşının bazılarını önlediğini bilir."],
+  ["4Bp.03","B","Know that plants and animals need energy to grow, live and be healthy, and plants get their energy from light while animals get their energy from eating plants or other animals.","Canlıların enerjiye ihtiyacı olduğunu; bitkilerin ışıktan, hayvanların bitki ya da hayvan yiyerek enerji aldığını bilir."],
+  ["4Bp.04","B","Describe the importance of movement in maintaining human health.","Hareketin insan sağlığı için önemini betimler."],
+  ["4Be.01","B","Know that different animals are found in, and suited to, different habitats.","Farklı hayvanların farklı habitatlarda bulunduğunu ve onlara uyum sağladığını bilir."],
+  ["4Be.02","B","Know plants and animals can survive in environments other than their habitats.","Bitki ve hayvanların kendi habitatı dışındaki ortamlarda da hayatta kalabildiğini bilir."],
+  ["4Be.03","B","Describe food chains as being made of producers and consumers, and classify consumers as herbivores, omnivores, carnivores, predators and/or prey.","Besin zincirini üretici ve tüketicilerle betimler; tüketicileri otçul, hepçil, etçil, avcı ve/veya av olarak sınıflar."],
+  ["4Cm.01","C","Describe the particle model for solids and liquids.","Katı ve sıvılar için tanecik modelini betimler."],
+  ["4Cm.02","C","Understand the difference between materials, substances and particles.","Madde (materyal), saf madde ve tanecik arasındaki farkı anlar."],
+  ["4Cm.03","C","Know that particles are in constant motion, even when in a solid.","Taneciklerin katıda bile sürekli hareket ettiğini bilir."],
+  ["4Cp.01","C","Use the particle model to explain the properties of solids and liquids.","Katı ve sıvıların özelliklerini tanecik modeliyle açıklar."],
+  ["4Cp.02","C","Describe and explain how some solids can behave like liquids (e.g. powders), referring to the particle model.","Bazı katıların (toz gibi) neden sıvı gibi davrandığını tanecik modeliyle açıklar."],
+  ["4Cc.01","C","Describe solidification/freezing and melting, using the particle model to describe the change of state.","Donma ve erimeyi tanecik modeliyle hâl değişimi olarak betimler."],
+  ["4Cc.02","C","Understand that the change of state of a substance is a physical process.","Hâl değişiminin fiziksel bir süreç olduğunu anlar."],
+  ["4Cc.03","C","Know that some substances will react with another substance to produce one or more new substances and this is called a chemical reaction.","Bazı maddelerin tepkimeye girip yeni madde oluşturduğunu ve buna kimyasal tepkime dendiğini bilir."],
+  ["4Pf.01","P","Know that energy is present in all matter and in sound, light and heat.","Enerjinin tüm maddede, seste, ışıkta ve ısıda bulunduğunu bilir."],
+  ["4Pf.02","P","Know that energy cannot be made, lost, used up or destroyed but it can be transferred.","Enerjinin yaratılamayacağını, yok olmayacağını ama aktarılabileceğini bilir."],
+  ["4Pf.03","P","Know that energy is required for any movement or action to happen.","Her hareket ve eylem için enerji gerektiğini bilir."],
+  ["4Pf.04","P","Know that not all energy is transferred from one object to another, but often some energy during a process can be transferred to the surrounding environment and this can be detected as sound, light or temperature increase.","Enerjinin bir kısmının çevreye aktarıldığını ve bunun ses, ışık ya da sıcaklık artışı olarak fark edildiğini bilir."],
+  ["4Ps.01","P","Know that light travels in straight lines and this can be represented with ray diagrams.","Işığın düz çizgide yayıldığını ve bunun ışın diyagramıyla gösterildiğini bilir."],
+  ["4Ps.02","P","Know that light can reflect off surfaces.","Işığın yüzeylerden yansıyabildiğini bilir."],
+  ["4Ps.03","P","Describe how objects which are not light sources are seen.","Işık kaynağı olmayan nesnelerin nasıl görüldüğünü betimler."],
+  ["4Pe.01","P","Know that an electrical device will not work if there is a break in the circuit.","Devrede kopukluk varsa elektrikli aletin çalışmayacağını bilir."],
+  ["4Pe.02","P","Describe how a simple switch is used to open and close a circuit.","Basit anahtarın devreyi nasıl açıp kapattığını betimler."],
+  ["4Pe.03","P","Describe how changing the number or type of components in a series circuit can make a lamp brighter or dimmer.","Seri devrede bileşen sayısı ya da türü değişince lambanın nasıl daha parlak ya da sönük yandığını betimler."],
+  ["4Pe.04","P","Know some materials are good electrical conductors, especially metals, and some are good electrical insulators.","Bazı maddelerin (özellikle metaller) iyi iletken, bazılarının iyi yalıtkan olduğunu bilir."],
+  ["4ESp.01","ES","Describe the model of the structure of the Earth which includes a core, a mantle and a crust.","Dünya'nın yapısını çekirdek, manto ve kabuk modeliyle betimler."],
+  ["4ESp.02","ES","Describe common features of volcanoes and know they are found at breaks in the Earth's crust.","Volkanların ortak özelliklerini betimler ve yer kabuğundaki kırıklarda bulunduğunu bilir."],
+  ["4ESp.03","ES","Know that the Earth's crust moves and when parts move suddenly this is called an earthquake.","Yer kabuğunun hareket ettiğini ve ani hareketlere deprem dendiğini bilir."],
+  ["4ESs.01","ES","Explain why the spinning of the Earth on its axis leads to the apparent movement of the Sun, night and day, and changes in shadows.","Dünya'nın ekseni etrafında dönmesinin Güneş'in görünen hareketine, gece-gündüze ve gölge değişimine yol açtığını açıklar."],
+  ["4ESs.02","ES","Name the planets in the Solar System.","Güneş Sistemi'ndeki gezegenleri adlandırır."],
+  ["4ESs.03","ES","Know that the Sun is at the centre of the Solar System.","Güneş'in Güneş Sistemi'nin merkezinde olduğunu bilir."],
+  ["4ESs.04","ES","Know that planetary systems can contain stars, planets, asteroids and comets.","Gezegen sistemlerinin yıldız, gezegen, asteroit ve kuyruklu yıldız içerebildiğini bilir."],
+  ["4SIC.01","SIC","Describe how scientific knowledge and understanding changes over time through the use of evidence gained by enquiry.","Bilimsel bilginin araştırmayla elde edilen kanıtlarla zaman içinde nasıl değiştiğini betimler."],
+  ["4SIC.02","SIC","Describe how science is used in their local area.","Bilimin yaşadığı çevrede nasıl kullanıldığını betimler."],
+  ["4SIC.03","SIC","Use science to support points when discussing issues, situations or actions.","Konuları, durumları ya da eylemleri tartışırken görüşünü bilimle destekler."],
+  ["4SIC.04","SIC","Identify people who use science, including professionally, in their area and describe how they use science.","Çevresinde bilimi (meslek olarak da) kullanan kişileri tanır ve nasıl kullandıklarını betimler."],
+  ["4SIC.05","SIC","Discuss how the use of science and technology can have positive and negative environmental effects on their local area.","Bilim ve teknoloji kullanımının yaşadığı çevreye olumlu ve olumsuz etkilerini tartışır."]
+],chapters:[
+  {n:1,title:"Bones and Muscles",secs:[
+    {k:"A",title:"Bones and the Skeleton",p:4,sb:"3–11",ab:"1–2",codes:["4Bs.01","4Bs.03","4TWSm.01","4TWSp.02","4TWSc.05","4TWSc.07","4TWSc.08","4TWSa.02","4SIC.04"]},
+    {k:"B",title:"Muscles and Movement",p:3,sb:"12–15",ab:"3–5",codes:["4Bs.02","4Bp.04","4TWSm.02","4TWSc.07","4SIC.04"]},
+    {k:"C",title:"Animals and Skeletons",p:4,sb:"16–22",ab:"6–10",codes:["4Bs.05","4Bs.04","4TWSc.02","4TWSc.07","4SIC.03"]}]},
+  {n:2,title:"Diseases",secs:[
+    {k:"A",title:"Infectious Diseases",p:3,sb:"23–30",ab:"11–12",codes:["4Bp.02","4TWSp.03","4TWSc.08","4TWSa.01","4TWSa.02","4TWSa.04","4SIC.04"]},
+    {k:"B",title:"Medicines",p:2,sb:"31–33",ab:"13–16",codes:["4Bp.01","4TWSp.02","4TWSc.05","4TWSc.07","4TWSc.08"]},
+    {k:"C",title:"Vaccines",p:4,sb:"34–41",ab:"17–22",codes:["4Bp.02","4TWSp.02","4TWSc.07","4TWSa.04","4SIC.01"]}]},
+  {n:3,title:"Energy from Food",secs:[
+    {k:"A",title:"Growing, Living and Being Healthy",p:1,sb:"42–44",ab:"—",codes:["4Bp.03","4TWSp.01"]},
+    {k:"B",title:"Getting Energy",p:5,sb:"45–48",ab:"23–26",codes:["4Bp.03","4TWSp.03","4TWSp.04","4TWSc.01","4TWSc.05","4TWSc.08","4TWSa.01","4TWSa.03","4TWSa.04","4SIC.03"]},
+    {k:"C",title:"Producers and Consumers",p:3,sb:"49–56",ab:"27–32",codes:["4Be.03","4TWSp.02","4TWSc.01","4TWSc.02","4TWSc.07","4SIC.04"]}]},
+  {n:4,title:"Different Habitats",secs:[
+    {k:"A",title:"Animals and Their Habitats",p:3,sb:"57–65",ab:"33–34",codes:["4Be.01","4TWSp.02","4TWSc.06","4TWSc.07","4TWSc.08","4TWSa.02","4TWSa.04","4SIC.04"]},
+    {k:"B",title:"Surviving Habitats",p:5,sb:"66–73",ab:"35–41",codes:["4Be.02","4TWSp.01","4TWSp.02","4TWSc.02","4TWSc.07","4SIC.03","4SIC.05"]}]},
+  {n:5,title:"Materials, Substances and Particles",secs:[
+    {k:"A",title:"Particle Model and Properties",p:3,sb:"74–78",ab:"42–43",codes:["4Cm.02","4Cm.01","4Cp.01","4Cm.03","4Cp.02","4TWSm.01","4TWSm.02","4TWSc.01"]},
+    {k:"B",title:"Changing State",p:3,sb:"79–85",ab:"44–45",codes:["4Cc.01","4Cc.02","4TWSp.02","4TWSp.03","4TWSp.04","4TWSp.05","4TWSc.03","4TWSc.04","4TWSc.06","4TWSc.08"]},
+    {k:"C",title:"Chemical Reactions",p:4,sb:"86–91",ab:"46–52",codes:["4Cc.03","4SIC.02","4SIC.04"]}]},
+  {n:6,title:"Energy",secs:[
+    {k:"A",title:"Sound, Light, Heat",p:3,sb:"92–98",ab:"53",codes:["4Pf.01","4Pf.03","4TWSp.02","4TWSc.01","4TWSc.08","4TWSa.04"]},
+    {k:"B",title:"Energy Transfers",p:6,sb:"99–107",ab:"54–62",codes:["4Pf.02","4Pf.04","4TWSm.03","4TWSp.03","4TWSc.05","4TWSc.07","4TWSc.08","4TWSa.02","4TWSa.03","4SIC.05"]}]},
+  {n:7,title:"Properties of Light",secs:[
+    {k:"A",title:"Light Travels",p:3,sb:"108–111",ab:"63–66",codes:["4Ps.01","4TWSm.01","4TWSp.03","4TWSc.04","4TWSa.01","4TWSa.03"]},
+    {k:"B",title:"Reflection of Light",p:5,sb:"112–119",ab:"67–72",codes:["4Ps.02","4Ps.03","4TWSm.03","4TWSp.05","4TWSc.03","4TWSc.06","4TWSc.08","4TWSa.04","4SIC.04"]}]},
+  {n:8,title:"Electrical Circuits",secs:[
+    {k:"A",title:"Simple Circuits",p:3,sb:"120–125",ab:"73–74",codes:["4Pe.01","4Pe.02","4TWSm.01","4TWSm.02","4TWSm.03","4TWSc.06","4TWSa.03","4SIC.02"]},
+    {k:"B",title:"Brightness of a Lamp",p:3,sb:"126–130",ab:"75–78",codes:["4Pe.03","4TWSp.02","4TWSp.03","4TWSp.04","4TWSc.05","4TWSc.06","4TWSc.08","4TWSa.01","4TWSa.02","4TWSa.03","4TWSa.04","4SIC.04"]},
+    {k:"C",title:"Conductors and Insulators",p:3,sb:"131–136",ab:"79–84",codes:["4Pe.04","4TWSm.03","4TWSp.03","4TWSp.05","4TWSc.03","4TWSc.06","4TWSc.08","4TWSa.03"]}]},
+  {n:9,title:"The Solar System",secs:[
+    {k:"A",title:"The Solar System",p:3,sb:"137–144",ab:"85–87",codes:["4ESs.03","4ESs.02","4ESs.04","4TWSm.01","4TWSm.02","4SIC.01","4SIC.03","4SIC.04"]},
+    {k:"B",title:"Spinning of Earth",p:4,sb:"145–151",ab:"88–92",codes:["4ESs.01","4TWSm.01","4TWSm.02","4TWSp.02"]}]},
+  {n:10,title:"The Structure of the Earth",secs:[
+    {k:"A",title:"The Earth's Structure",p:3,sb:"152–155",ab:"93–95",codes:["4ESp.01","4TWSm.01","4TWSm.02","4TWSc.07"]},
+    {k:"B",title:"Volcanoes",p:2,sb:"156–158",ab:"96–97",codes:["4ESp.02","4TWSm.01","4TWSm.02","4TWSm.03","4TWSc.07"]},
+    {k:"C",title:"Earthquakes",p:5,sb:"159–167",ab:"98–103",codes:["4ESp.03","4TWSm.01","4TWSm.02","4TWSp.01","4TWSp.02","4TWSc.07","4SIC.03","4SIC.04","4SIC.05"]}]}
+],camb:{}}
+};
+const STAGE_KEYS=[1,2,3,4];
+
+/* ---------- derived indexes (per stage, once) ---------- */
+for(const n of STAGE_KEYS){ const S=STAGES[n];
+  S.CODE=Object.fromEntries(S.codes.map(c=>[c[0],{code:c[0],strand:c[1],en:c[2],tr:c[3],where:[]}]));
+  let cum=0;
+  for(const ch of S.chapters){ for(const s of ch.secs){
+    s.id="C"+String(ch.n).padStart(2,"0")+s.k; s.short=ch.n+s.k;
+    s.from=cum+1; s.to=cum+s.p; cum=s.to;
+    s.wFrom=Math.ceil(s.from/2); s.wTo=Math.ceil(s.to/2);
+    for(const c of s.codes){ if(S.CODE[c]) S.CODE[c].where.push(s); }
+  }}
+  S.TOTAL_P=cum;
+  S.CAMB_OF={}; for(const [u,list] of Object.entries(S.camb)) for(const c of list){ (S.CAMB_OF[c]=S.CAMB_OF[c]||[]).push(u.split(" ")[0]); }
+}
+
+/* ---------- state + storage ---------- */
+const states={1:{ticks:{},codes:{}},2:{ticks:{},codes:{}},3:{ticks:{},codes:{}},4:{ticks:{},codes:{}}};
+let stage=1, state=states[1], CODES, CHAPTERS, CODE, CAMB_OF;
+let db=null;
+const LS="kod-defteri-stage1-4";
+function selectStage(n){ stage=n; state=states[n]; const S=STAGES[n]; CODES=S.codes; CHAPTERS=S.chapters; CODE=S.CODE; CAMB_OF=S.CAMB_OF; openCh.clear(); openCh.add(1); openCard.clear(); try{ localStorage.setItem(LS+"-stage",String(n)); }catch(e){} }
+function loadLocal(){ try{ const s=localStorage.getItem(LS); if(s){ const o=JSON.parse(s); for(const n of STAGE_KEYS) if(o&&o[n]) states[n]=Object.assign({ticks:{},codes:{}},o[n]); } const st=+localStorage.getItem(LS+"-stage"); if(STAGES[st]) stage=st; }catch(e){} }
+function saveLocal(){ try{ localStorage.setItem(LS,JSON.stringify(states)); const at=new Date().toLocaleString("tr-TR",{dateStyle:"short",timeStyle:"short"}); localStorage.setItem(LS+"-at",at); setSync("on","Bu cihazda kaydediliyor · son kayıt: "+at); }catch(e){ setSync("local","Kaydedilemedi: tarayıcı depolamayı engelliyor"); } }
+
+function codeMeta(c){ return state.codes[c]||{status:"auto",note:"",flag:false}; }
+function derivedFor(S,st,c){
+  const m=st.codes[c]||{status:"auto"}; if(m.status&&m.status!=="auto") return m.status;
+  const w=S.CODE[c].where; const n=w.filter(s=>st.ticks[s.id+"__"+c]).length;
+  return n===0?"todo":(n===w.length?"done":"progress");
+}
+function derived(c){ return derivedFor(STAGES[stage],state,c); }
+const ST_LABEL={todo:"Başlanmadı",progress:"Devam ediyor",done:"Tamamlandı"};
+
+async function writeTick(key,val){ saveLocal(); }
+async function writeCode(c){ saveLocal(); }
+function setTick(sid,c,val){
+  const k=sid+"__"+c; if(val) state.ticks[k]=true; else delete state.ticks[k];
+  render(); writeTick(k,val);
+}
+function setCode(c,patch){
+  state.codes[c]=Object.assign({status:"auto",note:"",flag:false},codeMeta(c),patch);
+  render(); writeCode(c);
+}
+
+/* ---------- rendering ---------- */
+const openCh=new Set([1]); const openCard=new Set(); let filter="all"; let tab="units";
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+const CHECK='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
+const CHEV='<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 8l5 5 5-5"/></svg>';
+
+function countDone(n){ const S=STAGES[n], st=states[n]; let d=0,p=0; for(const c of S.codes){ const s=derivedFor(S,st,c[0]); if(s==="done") d++; else if(s==="progress") p++; } return {d,p,t:S.codes.length}; }
+function renderStages(){
+  $("#stages").innerHTML=STAGE_KEYS.map(n=>{ const {d,t}=countDone(n);
+    return `<button class="stg" role="tab" aria-pressed="${n===stage}" aria-selected="${n===stage}" data-stage="${n}">Stage ${n}<b>${d} / ${t}</b><span class="mini"><i style="width:${t?d/t*100:0}%"></i></span></button>`; }).join("");
+}
+function renderTop(){
+  renderStages();
+  const {d,p,t}=countDone(stage);
+  $("#bar .d").style.width=(d/t*100)+"%"; $("#bar .p").style.width=(p/t*100)+"%";
+  $("#pnum").textContent=d+" / "+t;
+}
+function renderUnits(){
+  const host=$("#chapters"); let h="";
+  for(const ch of CHAPTERS){
+    const all=ch.secs.flatMap(s=>s.codes.map(c=>s.id+"__"+c));
+    const done=all.filter(k=>state.ticks[k]).length;
+    const per=ch.secs.reduce((a,s)=>a+s.p,0);
+    const f=ch.secs[0], l=ch.secs[ch.secs.length-1];
+    h+=`<article class="ch ${openCh.has(ch.n)?"open":""}" data-ch="${ch.n}">
+      <button class="ch-h" aria-expanded="${openCh.has(ch.n)}">
+        <span class="ch-n">Ü${ch.n}</span>
+        <span class="ch-t"><h2>${esc(ch.title)}</h2><div class="meta">${per} periyot · yaklaşık ${f.wFrom}.–${l.wTo}. hafta · ${done}/${all.length} işaret</div></span>
+        <span class="ch-pct ${done===all.length?"full":""}">${Math.round(done/all.length*100)}%</span>${CHEV}
+      </button>
+      <div class="ch-body">`;
+    for(const s of ch.secs){
+      const sd=s.codes.filter(c=>state.ticks[s.id+"__"+c]).length;
+      h+=`<div class="sec" data-sec="${s.id}">
+        <div class="sec-h"><span class="k">${s.k}</span><h3>${esc(s.title)}</h3><span class="pages">SB s.${s.sb} · AB s.${s.ab}</span></div>
+        <div class="sec-time">${s.p} periyot · ders ${s.from}–${s.to} · yaklaşık ${s.wFrom===s.wTo?s.wFrom+". hafta":s.wFrom+".–"+s.wTo+". hafta"}</div>`;
+      for(const c of s.codes){ const m=CODE[c]; const on=!!state.ticks[s.id+"__"+c];
+        h+=`<div class="row ${on?"on":""}"><button class="cb" role="checkbox" aria-checked="${on}" aria-label="${c}" data-tick="${s.id}|${c}">${CHECK}</button>
+          <div class="row-t"><span class="code">${c}</span><span class="strandtag">${m.strand}</span><div class="en">${esc(m.en)}</div><div class="tr">${esc(m.tr)}</div></div></div>`;
+      }
+      h+=`<button class="sec-all" data-secall="${s.id}">${sd===s.codes.length?"Bölümün işaretlerini kaldır":"Bölümün tümünü işaretle"}</button></div>`;
+    }
+    h+=`</div></article>`;
+  }
+  host.innerHTML=h;
+}
+function renderCodes(){
+  const host=$("#codes"); let h="";
+  for(const [sk,sname] of STRANDS){
+    const list=CODES.filter(c=>c[1]===sk).filter(c=>{
+      const s=derived(c[0]), m=codeMeta(c[0]);
+      return filter==="all"||(filter==="flag"?m.flag:s===filter);
+    });
+    if(!list.length) continue;
+    const dn=CODES.filter(c=>c[1]===sk&&derived(c[0])==="done").length, tot=CODES.filter(c=>c[1]===sk).length;
+    h+=`<div class="strand"><h2>${sname}</h2><span class="cnt">${dn}/${tot} tamamlandı</span></div>`;
+    for(const c of list){
+      const code=c[0], m=CODE[code], meta=codeMeta(code), s=derived(code), open=openCard.has(code);
+      const n=m.where.filter(w=>state.ticks[w.id+"__"+code]).length;
+      h+=`<article class="card s-${s} ${meta.flag?"flag":""} ${open?"open":""}" data-card="${code}">
+        <button class="card-h" aria-expanded="${open}">
+          <div style="flex:1;min-width:0"><span class="code">${code}</span>${meta.flag?' <span class="strandtag" style="color:var(--flag)">Ek plan</span>':""}<div class="en">${esc(m.en)}</div><div class="tr">${esc(m.tr)}</div></div>
+          <span class="pill ${s}">${ST_LABEL[s]}${meta.status!=="auto"&&meta.status?" ·":""}</span>
+        </button>
+        <div class="card-body">
+          <div class="lbl">Kitapta geçtiği bölümler · ${n}/${m.where.length} işlendi</div>
+          <div class="where">${m.where.map(w=>`<button class="wchip ${state.ticks[w.id+"__"+code]?"on":""}" data-wtick="${w.id}|${code}" title="${esc(w.title)}">${w.short}${state.ticks[w.id+"__"+code]?" ✓":""}</button>`).join("")}</div>
+          <div class="lbl">Cambridge Scheme of Work ünitesi</div>
+          <div class="camb">${(CAMB_OF[code]||[]).map(u=>"Ünite "+u).join(", ")||"Henüz eşlenmedi · koordinatörün syllabus'ı bekleniyor"}</div>
+          <div class="lbl">Durum</div>
+          <div class="st-row">
+            <button class="st auto" aria-pressed="${meta.status==="auto"||!meta.status}" data-st="${code}|auto">Otomatik</button>
+            <button class="st todo" aria-pressed="${meta.status==="todo"}" data-st="${code}|todo">Başlanmadı</button>
+            <button class="st progress" aria-pressed="${meta.status==="progress"}" data-st="${code}|progress">Devam ediyor</button>
+            <button class="st done" aria-pressed="${meta.status==="done"}" data-st="${code}|done">Tamamlandı</button>
+          </div>
+          <div class="tog"><button class="sw" role="switch" aria-checked="${!!meta.flag}" data-flag="${code}"></button><span>Kitap dışında ek ders planı gerekli</span></div>
+          <div class="lbl">Not</div>
+          <textarea data-note="${code}" placeholder="Ne zaman, nasıl işledin? Ek plan fikri, materyal, tarih…">${esc(meta.note||"")}</textarea>
+          <div class="note-saved" data-saved="${code}"></div>
+        </div></article>`;
+    }
+  }
+  host.innerHTML=h||`<div class="empty">Bu filtrede kod yok.</div>`;
+}
+function render(){ renderTop(); if(tab==="units") renderUnits(); else renderCodes(); }
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  if(t.dataset.stage){ selectStage(+t.dataset.stage); render(); window.scrollTo({top:0}); return; }
+  if(t.dataset.tab){ tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b===t));
+    $("#view-units").classList.toggle("hidden",tab!=="units"); $("#view-codes").classList.toggle("hidden",tab!=="codes"); render(); return; }
+  if(t.classList.contains("ch-h")){ const n=+t.closest(".ch").dataset.ch; openCh.has(n)?openCh.delete(n):openCh.add(n); renderUnits(); return; }
+  if(t.dataset.tick){ const [sid,c]=t.dataset.tick.split("|"); setTick(sid,c,!state.ticks[sid+"__"+c]); return; }
+  if(t.dataset.wtick){ const [sid,c]=t.dataset.wtick.split("|"); setTick(sid,c,!state.ticks[sid+"__"+c]); return; }
+  if(t.dataset.secall){ const s=CHAPTERS.flatMap(x=>x.secs).find(x=>x.id===t.dataset.secall);
+    const allOn=s.codes.every(c=>state.ticks[s.id+"__"+c]);
+    for(const c of s.codes){ const k=s.id+"__"+c; if(allOn) delete state.ticks[k]; else state.ticks[k]=true; writeTick(k,!allOn); }
+    render(); return; }
+  if(t.classList.contains("card-h")){ const c=t.closest(".card").dataset.card; openCard.has(c)?openCard.delete(c):openCard.add(c); renderCodes(); return; }
+  if(t.dataset.st){ const [c,s]=t.dataset.st.split("|"); setCode(c,{status:s}); return; }
+  if(t.dataset.flag){ setCode(t.dataset.flag,{flag:!codeMeta(t.dataset.flag).flag}); return; }
+  if(t.dataset.f){ filter=t.dataset.f; document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b===t)); renderCodes(); return; }
+  if(t.id==="copyBtn"){ copySummary(); return; }
+  if(t.id==="exportBtn"){ const txt=JSON.stringify(states); (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast("Yedek kopyalandı, diğer cihazda Yedek yükle'ye yapıştır")).catch(()=>prompt("Bu metni kopyala:",txt)); return; }
+  if(t.id==="importBtn"){ const txt=prompt("Diğer cihazdan kopyaladığın yedeği buraya yapıştır:"); if(!txt) return;
+    try{ const o=JSON.parse(txt); if(!o||typeof o!=="object") throw 0; for(const n of STAGE_KEYS) if(o[n]) states[n]={ticks:o[n].ticks||{},codes:o[n].codes||{}}; selectStage(stage); saveLocal(); render(); toast("Yedek yüklendi"); }catch(e){ toast("Yedek okunamadı"); } return; }
+  if(t.id==="resetBtn"){ if(confirm("Stage "+stage+" için tüm işaretler, durumlar ve notlar silinsin mi?")) resetAll(); return; }
+});
+const noteTimers={};
+document.addEventListener("input",e=>{
+  const ta=e.target.closest("textarea[data-note]"); if(!ta) return;
+  const c=ta.dataset.note; const saved=document.querySelector(`[data-saved="${c}"]`); if(saved) saved.textContent="Yazılıyor…";
+  clearTimeout(noteTimers[c]);
+  noteTimers[c]=setTimeout(()=>{ state.codes[c]=Object.assign({status:"auto",note:"",flag:false},codeMeta(c),{note:ta.value}); writeCode(c);
+    const sv=document.querySelector(`[data-saved="${c}"]`); if(sv) sv.textContent="Kaydedildi"; },600);
+});
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+function copySummary(){
+  const lines=["Stage "+stage+" Cambridge kod takibi — "+new Date().toLocaleDateString("tr-TR")];
+  for(const [sk,sname] of STRANDS){ lines.push("",sname.toUpperCase());
+    for(const c of CODES.filter(x=>x[1]===sk)){ const s=derived(c[0]), m=codeMeta(c[0]);
+      lines.push(`${s==="done"?"[x]":s==="progress"?"[~]":"[ ]"} ${c[0]} — ${ST_LABEL[s]}${m.flag?" · EK PLAN GEREKLİ":""}${m.note?" · "+m.note.replace(/\s+/g," "):""}`); } }
+  const txt=lines.join("\n");
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast("Özet kopyalandı")).catch(()=>{ prompt("Kopyalamak için seç:",txt); });
+}
+async function resetAll(){
+  const n=stage, ticks=Object.keys(state.ticks), codes=Object.keys(state.codes);
+  states[n]={ticks:{},codes:{}}; state=states[n]; render();
+  saveLocal();
+  toast("Temizlendi");
+}
+
+/* ---------- boot ---------- */
+function setSync(mode,text){ const s=$("#sync"); s.className="sync "+mode; s.querySelector("span").textContent=text; }
+loadLocal(); selectStage(stage); render();
+try{ setSync("on","Bu cihazda kaydediliyor · son kayıt: "+(localStorage.getItem(LS+"-at")||"henüz yok")); }catch(e){ setSync("local","Bu tarayıcı kayıt tutmuyor; yedek al/yükle ile taşı"); }
+</script>
+</body>
+</html>
